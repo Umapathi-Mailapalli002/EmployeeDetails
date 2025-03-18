@@ -7,9 +7,11 @@ import AddDetails from './screens/AddDetails.jsx';
 import { NavigationContainer } from '@react-navigation/native';
 import Page1 from './components/Page1.jsx';
 import Page2 from './components/Page2.jsx';
+import { OPENWEATHER_API_KEY } from '@env';
 
-
+export const weatherApi = OPENWEATHER_API_KEY;
 const App = () => {
+  
   const Stack = createStackNavigator();
   return (
     <NavigationContainer>

@@ -1,37 +1,59 @@
 import {StyleSheet, Text, View, TextInput, Button} from 'react-native';
-import React, {useEffect, useState, } from 'react';
+import React, {useEffect, useState} from 'react';
 import {Picker} from '@react-native-picker/picker';
-import { fetchCities } from '../services/citiesApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {fetchCities} from '../services/citiesApi';
+import {useNavigation, useRoute} from '@react-navigation/native';
 const Page2 = () => {
   const [name, setName] = useState('');
   const [selectedCity, setSelectedCity] = useState();
   const [cities, setCities] = useState(null);
-  console.log(name);
+  const navigation = useNavigation();
+  const router = useRoute();
+  const {state} = router.params || {};
   useEffect(() => {
-    const fetchData = async() => {
+    const fetchData = async () => {
       const cities = await fetchCities();
-      setCities(cities?.results)
-      console.log(cities?.results);
+      setCities(cities?.results);
+    };
+    fetchData();
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const newData = {
+        qr_id: state,
+        name: name,
+        city: selectedCity,
+      };
+  
+      const storedData = await AsyncStorage.getItem('Emp_details');
+      let Emp_details = storedData ? JSON.parse(storedData) : [];
+  
+      Emp_details.push(newData);
+  
+      await AsyncStorage.setItem('Emp_details', JSON.stringify(Emp_details));
+  
+      navigation.navigate('Dashboard')      
+    } catch (error) {
+      console.error('Error saving Employee details:', error);
     }
-   fetchData();
-  })
+  };
+  
+
   return (
     <View style={styles.container}>
-        <Text style={styles.label}>Select City:</Text>
+      <Text style={styles.label}>Select City:</Text>
       <View style={{borderWidth: 1, borderRadius: 10}}>
         <Picker
-        dropdownIconColor={'#000 '}
+          dropdownIconColor={'#000 '}
           selectedValue={selectedCity}
-          style={styles.picker} // Change text color here
-          onValueChange={(itemValue, itemIndex) =>
-            setSelectedCity(itemValue)
-          }>
-            <Picker.Item label="Select City" value="Select City" />
-            {
-              cities?.map((city) => (
-                <Picker.Item label={city.name} key={city.name} value={city.geocode} />
-              ))
-            }
+          style={styles.picker}
+          onValueChange={itemValue => setSelectedCity(itemValue)}>
+          <Picker.Item label="Select City" value="Select City" />
+          {cities?.map(city => (
+            <Picker.Item label={city.name} key={city.geoname_id} value={city.name} />
+          ))}
         </Picker>
       </View>
       <Text style={styles.label}>Enter Your Name:</Text>
@@ -43,13 +65,13 @@ const Page2 = () => {
         onChangeText={setName}
       />
       <View style={styles.btnsContainer}>
-      <View style={styles.buttonContainer}>
-        <Button title="Previous" onPress={() => alert('Previous Clicked')} />
+        <View style={styles.buttonContainer}>
+          <Button title="Previous" onPress={() => navigation.goBack()} />
+        </View>
+        <View style={styles.buttonContainer}>
+          <Button title="Submit" onPress={handleSubmit} />
+        </View>
       </View>
-      <View style={styles.buttonContainer}>
-        <Button title="Submit" onPress={() => alert('Submit Clicked')} />
-      </View>
-    </View>
     </View>
   );
 };
@@ -59,7 +81,7 @@ export default Page2;
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    marginTop: 200
+    marginTop: 200,
   },
   label: {
     fontSize: 18,
@@ -76,7 +98,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 40
+    marginTop: 40,
   },
   picker: {
     color: '#000',

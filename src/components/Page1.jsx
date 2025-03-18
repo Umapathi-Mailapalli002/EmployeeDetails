@@ -35,14 +35,11 @@ const Page1 = () => {
       return;
     },
   });
-  // useEffect(() => {
-  //   (async () => {
-  //     if (!hasPermission) {
-  //       await requestPermission();
-  //     }
-  //   })();
-  //   console.log(hasPermission);
-  // }, [hasPermission]);
+  const handleNext = () =>{
+    if (ScannedData) {
+      navigation.navigate('Page2', {state: ScannedData})
+    }
+  }
   if (device == null) return <ActivityIndicator size="large" color="blue" />;
 
   if (!hasPermission) {
@@ -73,8 +70,8 @@ const Page1 = () => {
           }} style={styles.btn}>
           <Text style={styles.btnText}>{ScannedData.trim() === '' ? 'Scan' : 'Scan Again'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Page2')} 
-        // disabled={ScannedData.trim() === '' ? true : false}
+        <TouchableOpacity onPress={handleNext} 
+         disabled={ScannedData.trim() === '' ? true : false}
         style={styles.btn}>
           <Text style={styles.btnText}>Next</Text>
         </TouchableOpacity>

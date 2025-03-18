@@ -1,28 +1,44 @@
 import {StyleSheet, Text, View, TextInput, Button} from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState, } from 'react';
 import {Picker} from '@react-native-picker/picker';
+import { fetchCities } from '../services/citiesApi';
 const Page2 = () => {
   const [name, setName] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState();
+  const [selectedCity, setSelectedCity] = useState();
+  const [cities, setCities] = useState(null);
   console.log(name);
+  useEffect(() => {
+    const fetchData = async() => {
+      const cities = await fetchCities();
+      setCities(cities?.results)
+      console.log(cities?.results);
+    }
+   fetchData();
+  })
   return (
     <View style={styles.container}>
         <Text style={styles.label}>Select City:</Text>
       <View style={{borderWidth: 1, borderRadius: 10}}>
         <Picker
-          selectedValue={selectedLanguage}
+        dropdownIconColor={'#000 '}
+          selectedValue={selectedCity}
+          style={styles.picker} // Change text color here
           onValueChange={(itemValue, itemIndex) =>
-            setSelectedLanguage(itemValue)
+            setSelectedCity(itemValue)
           }>
-          <Picker.Item label="Select City" value="Select City" />
-          <Picker.Item label="Java" value="java" />
-          <Picker.Item label="JavaScript" value="js" />
+            <Picker.Item label="Select City" value="Select City" />
+            {
+              cities?.map((city) => (
+                <Picker.Item label={city.name} key={city.name} value={city.geocode} />
+              ))
+            }
         </Picker>
       </View>
       <Text style={styles.label}>Enter Your Name:</Text>
       <TextInput
         style={styles.input}
         placeholder="Enter Name"
+        placeholderTextColor={'#000'}
         value={name}
         onChangeText={setName}
       />
@@ -62,6 +78,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 40
   },
+  picker: {
+    color: '#000',
+  },
+
   buttonContainer: {
     width: 130,
   },

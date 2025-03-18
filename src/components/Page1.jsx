@@ -15,7 +15,9 @@ import {
   useCodeScanner,
 } from 'react-native-vision-camera';
 import Qr from '../assets/qr.png';
+import { useNavigation } from '@react-navigation/native';
 const Page1 = () => {
+  const navigation = useNavigation();
   const [ScannedData, setScannedData] = useState('');
   const [cameraShown, setCameraShown] = useState(false);
   const device = useCameraDevice('back');
@@ -41,35 +43,39 @@ const Page1 = () => {
   //   })();
   //   console.log(hasPermission);
   // }, [hasPermission]);
-  if (device == null) return <ActivityIndicator />;
+  if (device == null) return <ActivityIndicator size="large" color="blue" />;
 
   if (!hasPermission) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text style={{fontSize: 24, color: 'red'}}>
-          Camera permission is required
-        </Text>
+      <View style={styles.centeredView}>
+        <Text style={styles.permissionText}>Camera permission is required</Text>
         <Button title="Grant Permission" onPress={requestPermission} />
       </View>
     );
   }
+
   return (
     <View style={styles.container}>
-      {cameraShown ? (
-        <Camera
-          codeScanner={codeScanner}
-          style={{height: 400, width: 380, marginTop: 120}}
-          device={device}
-          isActive={cameraShown}
-        />
-      ) : (
-        <Image style={{height: 380, width: 380, marginTop: 120}} source={Qr} />
-      )}
+    {cameraShown ? (
+      <Camera
+        codeScanner={codeScanner}
+        style={styles.cameraStyle}
+        device={device}
+        isActive={cameraShown}
+      />
+    ) : (
+      <Image style={styles.qrImage} source={Qr} />
+    )}
       <View style={styles.btnContainer}>
-        <TouchableOpacity onPress={() => setCameraShown(true)} style={styles.btn}>
+        <TouchableOpacity onPress={() => {
+            setScannedData(''); // Reset scanned data
+            setCameraShown(true);
+          }} style={styles.btn}>
           <Text style={styles.btnText}>{ScannedData.trim() === '' ? 'Scan' : 'Scan Again'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity disabled={ScannedData.trim() === '' ? true : false} style={styles.btn}>
+        <TouchableOpacity onPress={() => navigation.navigate('Page2')} 
+        // disabled={ScannedData.trim() === '' ? true : false}
+        style={styles.btn}>
           <Text style={styles.btnText}>Next</Text>
         </TouchableOpacity>
       </View>
@@ -83,6 +89,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  permissionText: {
+    fontSize: 24,
+    color: 'red',
+    marginBottom: 20,
+  },
+  cameraStyle: {
+    height: 400,
+    width: 380,
+    marginTop: 120,
+  },
+  qrImage: {
+    height: 380,
+    width: 380,
+    marginTop: 120,
   },
   btn: {
     padding: 10,

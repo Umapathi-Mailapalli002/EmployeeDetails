@@ -84,7 +84,8 @@ export default Page1;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    display: 'flex',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   centeredView: {
